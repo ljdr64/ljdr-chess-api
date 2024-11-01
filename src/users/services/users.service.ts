@@ -1,55 +1,43 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Db } from 'mongodb';
-import { Model } from 'mongoose';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-
-import { User } from '../entities/user.entity';
+import { Model } from 'mongoose';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
-import { GamesService } from '../../games/services/games.service';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private gamesService: GamesService,
-    @Inject('MONGO') private databaseMongo: Db,
-    @InjectModel(User.name) private userModel: Model<User>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  findAll() {
-    return this.userModel.find().exec();
+  async create(createUserDto: CreateUserDto) {
+    const newUser = new this.userModel(createUserDto);
+    return await newUser.save();
   }
 
-  getTasks() {
-    const tasksCollection = this.databaseMongo.collection('tasks');
-    return tasksCollection.find().toArray();
+  async findOne(username: string) {
+    const user = await this.userModel.findOne({ username });
+    if (!user) {
+      throw new NotFoundException(`User with username ${username} not found`);
+    }
+    return user;
   }
 
-  async findOne(id: string) {
-    return this.userModel.findById(id);
+  async update(username: string, updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.userModel.findOneAndUpdate(
+      { username },
+      { $set: updateUserDto },
+      { new: true },
+    );
+    if (!updatedUser) {
+      throw new NotFoundException(`User with username ${username} not found`);
+    }
+    return updatedUser;
   }
 
-  async getOrdersByUser(userId: string) {
-    const user = await this.findOne(userId);
-    return {
-      date: new Date(),
-      user,
-      // games: this.gamesService.findAll(),
-      games: [],
-    };
-  }
-
-  create(data: CreateUserDto) {
-    const newModel = new this.userModel(data);
-    return newModel.save();
-  }
-
-  update(id: string, changes: UpdateUserDto) {
-    return this.userModel
-      .findByIdAndUpdate(id, { $set: changes }, { new: true })
-      .exec();
-  }
-
-  remove(id: string) {
-    return this.userModel.findByIdAndDelete(id);
+  async remove(username: string) {
+    const result = await this.userModel.findOneAndDelete({ username });
+    if (!result) {
+      throw new NotFoundException(`User with username ${username} not found`);
+    }
+    return result;
   }
 }

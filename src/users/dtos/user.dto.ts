@@ -1,20 +1,70 @@
-import { IsString, IsNotEmpty, IsEmail, Length } from 'class-validator';
-import { PartialType, ApiProperty } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+
+type GameType = 'bullet' | 'blitz' | 'rapid' | 'classical';
+
+interface Performance {
+  games: number;
+  rating: number;
+  rd?: number;
+  prog?: number;
+  prov?: boolean;
+}
+
+interface Profile {
+  flag?: string;
+  location?: string;
+  bio?: string;
+  realName?: string;
+  fideRating?: number;
+  uscfRating?: number;
+  ecfRating?: number;
+  cfcRating?: number;
+  dsbRating?: number;
+  links?: string;
+}
 
 export class CreateUserDto {
   @IsString()
-  @IsEmail()
-  @ApiProperty({ description: "the user' email" })
-  readonly email: string;
+  username: string;
 
   @IsString()
-  @IsNotEmpty()
-  @Length(6)
-  @ApiProperty({ description: "the user' password", deprecated: true })
-  readonly password: string;
+  flair: string;
 
-  @IsNotEmpty()
-  readonly role: string;
+  @IsNumber()
+  createdAt: number;
+
+  @IsNumber()
+  seenAt: number;
+
+  @IsBoolean()
+  disabled: boolean;
+
+  @IsBoolean()
+  tosViolation: boolean;
+
+  @IsBoolean()
+  verified: boolean;
+
+  @IsNumber()
+  totalPlayTime: number;
+
+  @IsString()
+  title: string;
+
+  @IsObject()
+  perfs: {
+    [type in GameType]: Performance;
+  };
+
+  @IsOptional()
+  profile?: Profile;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

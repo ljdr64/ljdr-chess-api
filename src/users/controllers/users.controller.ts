@@ -15,43 +15,32 @@ import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
-
-  @Get()
-  @ApiOperation({
-    summary: 'List of users',
-  })
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get('tasks')
-  tasks() {
-    return this.usersService.getTasks();
-  }
-
-  @Get(':id')
-  get(@Param('id') id: string) {
-    return this.usersService.findOne(id);
-  }
-
-  @Get(':id/orders')
-  getOrders(@Param('id') id: string) {
-    return this.usersService.getOrdersByUser(id);
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() payload: CreateUserDto) {
-    return this.usersService.create(payload);
+  @ApiOperation({ summary: 'Create a new user' })
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() payload: UpdateUserDto) {
-    return this.usersService.update(id, payload);
+  @Get(':username')
+  @ApiOperation({ summary: 'Get a user by username' })
+  async findOne(@Param('username') username: string) {
+    return await this.usersService.findOne(username);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  @Put(':username')
+  @ApiOperation({ summary: 'Update a user by username' })
+  async update(
+    @Param('username') username: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.usersService.update(username, updateUserDto);
+  }
+
+  @Delete(':username')
+  @ApiOperation({ summary: 'Delete a user by username' })
+  async remove(@Param('username') username: string) {
+    return await this.usersService.remove(username);
   }
 }
