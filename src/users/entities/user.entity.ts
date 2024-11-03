@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-type GameType = 'bullet' | 'blitz' | 'rapid' | 'standard';
+type GameType = 'bullet' | 'blitz' | 'rapid' | 'classical';
 
 interface Performance {
   games: number;
   rating: number;
   rd?: number;
   prog?: number;
-  prov?: boolean;
+  prov: boolean;
 }
 
 @Schema({ _id: false })
@@ -52,10 +52,10 @@ export class User extends Document {
   @Prop()
   flair?: string;
 
-  @Prop({ required: true })
+  @Prop({ default: Date.now })
   createdAt: number;
 
-  @Prop({ required: true })
+  @Prop({ default: Date.now })
   seenAt: number;
 
   @Prop({ default: false })
@@ -67,13 +67,21 @@ export class User extends Document {
   @Prop({ default: false })
   verified: boolean;
 
-  @Prop({ required: true })
+  @Prop({ default: 0 })
   totalPlayTime: number;
 
   @Prop()
   title?: string;
 
-  @Prop({ type: Object })
+  @Prop({
+    type: Object,
+    default: () => ({
+      blitz: { games: 0, rating: 1500, prov: true },
+      bullet: { games: 0, rating: 1500, prov: true },
+      classical: { games: 0, rating: 1500, prov: true },
+      rapid: { games: 0, rating: 1500, prov: true },
+    }),
+  })
   perfs: {
     [type in GameType]: Performance;
   };

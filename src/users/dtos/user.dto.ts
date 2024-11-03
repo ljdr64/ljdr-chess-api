@@ -1,22 +1,5 @@
-import {
-  IsString,
-  IsNumber,
-  IsBoolean,
-  IsOptional,
-  IsObject,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
-
-type GameType = 'bullet' | 'blitz' | 'rapid' | 'classical';
-
-interface Performance {
-  games: number;
-  rating: number;
-  rd?: number;
-  prog?: number;
-  prov?: boolean;
-}
 
 interface Profile {
   flag?: string;
@@ -36,34 +19,11 @@ export class CreateUserDto {
   @IsString()
   username: string;
 
-  @IsString()
-  flair: string;
+  @IsOptional()
+  flair?: string;
 
-  @IsNumber()
-  createdAt: number;
-
-  @IsNumber()
-  seenAt: number;
-
-  @IsBoolean()
-  disabled: boolean;
-
-  @IsBoolean()
-  tosViolation: boolean;
-
-  @IsBoolean()
-  verified: boolean;
-
-  @IsNumber()
-  totalPlayTime: number;
-
-  @IsString()
-  title: string;
-
-  @IsObject()
-  perfs: {
-    [type in GameType]: Performance;
-  };
+  @IsOptional()
+  title?: string;
 
   @IsOptional()
   profile?: Profile;
