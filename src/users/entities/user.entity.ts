@@ -11,8 +11,8 @@ interface Performance {
   prov?: boolean;
 }
 
-@Schema()
-export class Profile {
+@Schema({ _id: false })
+class Profile {
   @Prop({ required: true })
   flag: string;
 

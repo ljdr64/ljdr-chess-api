@@ -1,60 +1,43 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, FilterQuery } from 'mongoose';
-
+import { Model } from 'mongoose';
+import { CreateGameDto, UpdateGameDto } from '../dtos/games.dtos';
 import { Game } from '../entities/game.entity';
-import {
-  CreateGameDto,
-  UpdateGameDto,
-  FilterGamesDto,
-} from '../dtos/games.dtos';
 
 @Injectable()
 export class GamesService {
   constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
 
-  findAll(params?: FilterGamesDto) {
-    if (params) {
-      const filters: FilterQuery<Game> = {};
-      const { limit, offset } = params;
-      const { minPrice, maxPrice } = params;
-      if (minPrice && maxPrice) {
-        filters.price = { $gte: minPrice, $lte: maxPrice };
-      }
-      return this.gameModel
-        .find(filters)
-        .populate('brand')
-        .skip(offset)
-        .limit(limit)
-        .exec();
-    }
-    return this.gameModel.find().populate('brand').exec();
+  async create(createGameDto: CreateGameDto) {
+    const newGame = new this.gameModel(createGameDto);
+    return await newGame.save();
   }
 
   async findOne(id: string) {
-    const game = await this.gameModel.findById(id).exec();
+    const game = await this.gameModel.findOne({ id });
     if (!game) {
-      throw new NotFoundException(`Game #${id} not found`);
+      throw new NotFoundException(`Game with id ${id} not found`);
     }
     return game;
   }
 
-  create(data: CreateGameDto) {
-    const newGame = new this.gameModel(data);
-    return newGame.save();
-  }
-
-  update(id: string, changes: UpdateGameDto) {
-    const game = this.gameModel
-      .findByIdAndUpdate(id, { $set: changes }, { new: true })
-      .exec();
-    if (!game) {
-      throw new NotFoundException(`Game #${id} not found`);
+  async update(id: string, updateGameDto: UpdateGameDto) {
+    const updatedGame = await this.gameModel.findOneAndUpdate(
+      { id },
+      { $set: updateGameDto },
+      { new: true },
+    );
+    if (!updatedGame) {
+      throw new NotFoundException(`Game with id ${id} not found`);
     }
-    return game;
+    return updatedGame;
   }
 
-  remove(id: string) {
-    return this.gameModel.findByIdAndDelete(id);
+  async remove(id: string) {
+    const result = await this.gameModel.findOneAndDelete({ id });
+    if (!result) {
+      throw new NotFoundException(`Game with id ${id} not found`);
+    }
+    return result;
   }
 }

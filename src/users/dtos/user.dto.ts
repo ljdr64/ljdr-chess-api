@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsOptional,
   IsObject,
+  IsNotEmpty,
 } from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 
@@ -31,6 +32,7 @@ interface Profile {
 }
 
 export class CreateUserDto {
+  @IsNotEmpty()
   @IsString()
   username: string;
 

@@ -1,42 +1,109 @@
-import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { Brand } from './brand.entity';
-import { SubDoc, SubDocSchema } from './sub-doc.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-@Schema()
-export class Game extends Document {
+export type GameDocument = Game & Document;
+
+@Schema({ _id: false })
+class PlayerUser {
   @Prop({ required: true })
   name: string;
 
   @Prop()
-  description: string;
+  title?: string;
 
-  @Prop({ type: Number, index: true })
-  price: number;
+  @Prop({ required: true })
+  id: string;
+}
 
-  @Prop({ type: Number })
-  stock: number;
+@Schema({ _id: false })
+class Player {
+  @Prop({ type: PlayerUser, required: true })
+  user: PlayerUser;
+
+  @Prop({ required: true })
+  rating: number;
+}
+
+@Schema({ _id: false })
+class Players {
+  @Prop({ type: Player, required: true })
+  white: Player;
+
+  @Prop({ type: Player, required: true })
+  black: Player;
+}
+
+@Schema({ _id: false })
+class Move {
+  @Prop({ required: true })
+  fen: string;
 
   @Prop()
-  image: string;
+  lm?: string;
 
-  @Prop(
-    raw({
-      name: { type: String },
-      image: { type: String },
-    }),
-  )
-  category: Record<string, any>;
+  @Prop({ required: true })
+  wc: number;
 
-  @Prop({ type: Types.ObjectId, ref: Brand.name })
-  brand: Brand | Types.ObjectId;
+  @Prop({ required: true })
+  bc: number;
+}
 
-  @Prop({ type: SubDocSchema })
-  subDoc: SubDoc;
+@Schema()
+export class Game {
+  @Prop({ required: true })
+  id: string;
 
-  @Prop({ type: [SubDocSchema] })
-  subDocs: Types.Array<SubDoc>;
+  @Prop({ type: Object, required: true })
+  variant: {
+    key: string;
+    name: string;
+    short: string;
+  };
+
+  @Prop({ required: true })
+  speed: string;
+
+  @Prop({ required: true })
+  perf: string;
+
+  @Prop({ required: true })
+  rated: boolean;
+
+  @Prop({ required: true })
+  initialFen: string;
+
+  @Prop({ required: true })
+  fen: string;
+
+  @Prop({ required: true })
+  player: string;
+
+  @Prop({ required: true })
+  turns: number;
+
+  @Prop({ required: true })
+  startedAtTurn: number;
+
+  @Prop({ required: true })
+  source: string;
+
+  @Prop({ type: Object, required: false })
+  status?: {
+    id: number;
+    name: string;
+  };
+
+  @Prop({ required: true })
+  createdAt: number;
+
+  @Prop({ required: true })
+  lastMove: string;
+
+  @Prop({ type: Players, required: true })
+  players: Players;
+
+  @Prop({ type: [] })
+  moves: Move[];
 }
 
 export const GameSchema = SchemaFactory.createForClass(Game);
-GameSchema.index({ price: 1, stock: -1 });
