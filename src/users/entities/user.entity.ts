@@ -13,8 +13,8 @@ interface Performance {
 
 @Schema({ _id: false })
 class Profile {
-  @Prop({ required: true })
-  flag: string;
+  @Prop()
+  flag?: string;
 
   @Prop()
   location?: string;
@@ -22,8 +22,8 @@ class Profile {
   @Prop()
   bio?: string;
 
-  @Prop({ required: true })
-  realName: string;
+  @Prop()
+  realName?: string;
 
   @Prop()
   fideRating?: number;
@@ -46,7 +46,7 @@ class Profile {
 
 @Schema()
 export class User extends Document {
-  @Prop({ required: true })
+  @Prop({ unique: true, required: true })
   username: string;
 
   @Prop()

@@ -1,6 +1,6 @@
 import { User } from '../entities/user.entity';
 
-export const defaultUser: Partial<User> = {
+export const userDefault: Partial<User> = {
   createdAt: Date.now(),
   seenAt: Date.now(),
   disabled: false,
