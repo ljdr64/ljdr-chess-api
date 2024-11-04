@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateGameDto, UpdateGameDto } from '../dtos/games.dtos';
@@ -9,7 +13,15 @@ export class GamesService {
   constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
 
   async create(createGameDto: CreateGameDto) {
+    const existingGame = await this.gameModel.findOne({
+      id: createGameDto.id,
+    });
+    if (existingGame) {
+      throw new ConflictException('Id already exists');
+    }
+
     const newGame = new this.gameModel(createGameDto);
+
     return await newGame.save();
   }
 
