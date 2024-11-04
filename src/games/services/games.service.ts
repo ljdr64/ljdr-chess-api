@@ -8,9 +8,14 @@ import { Model } from 'mongoose';
 import { CreateGameDto, UpdateGameDto } from '../dtos/games.dtos';
 import { Game } from '../entities/game.entity';
 
+import { UsersService } from 'src/users/services/users.service';
+
 @Injectable()
 export class GamesService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
+  constructor(
+    @InjectModel(Game.name) private gameModel: Model<Game>,
+    private usersService: UsersService,
+  ) {}
 
   async create(createGameDto: CreateGameDto) {
     const existingGame = await this.gameModel.findOne({
@@ -21,6 +26,16 @@ export class GamesService {
     }
 
     const newGame = new this.gameModel(createGameDto);
+
+    const { players } = newGame;
+    await this.usersService.updateUserGamesCount(
+      players.white.user.id,
+      createGameDto.perf,
+    );
+    await this.usersService.updateUserGamesCount(
+      players.black.user.id,
+      createGameDto.perf,
+    );
 
     return await newGame.save();
   }

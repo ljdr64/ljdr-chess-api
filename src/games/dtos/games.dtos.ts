@@ -7,9 +7,11 @@ import {
   IsNumber,
   IsArray,
   ValidateNested,
+  IsEnum,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
+import { GameType } from '../enum/game-type.enum';
 
 class UserDto {
   @IsNotEmpty()
@@ -64,11 +66,13 @@ export class CreateGameDto {
 
   @IsNotEmpty()
   @IsString()
-  speed: string;
+  @IsEnum(GameType)
+  speed: GameType;
 
   @IsNotEmpty()
   @IsString()
-  perf: string;
+  @IsEnum(GameType)
+  perf: GameType;
 
   @IsNotEmpty()
   @IsBoolean()

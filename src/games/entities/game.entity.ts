@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { GameType } from '../enum/game-type.enum';
 
 export type GameDocument = Game & Document;
 
@@ -61,10 +62,10 @@ export class Game {
   };
 
   @Prop({ required: true })
-  speed: string;
+  speed: GameType;
 
   @Prop({ required: true })
-  perf: string;
+  perf: GameType;
 
   @Prop({ required: true })
   rated: boolean;

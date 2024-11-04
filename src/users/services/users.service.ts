@@ -15,13 +15,14 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userModel.findOne({
-      username: createUserDto.username,
+      id: createUserDto.username.toLowerCase(),
     });
     if (existingUser) {
       throw new ConflictException('Username already exists');
     }
 
     const newUser = new this.userModel({
+      id: createUserDto.username.toLowerCase(),
       ...createUserDto,
       ...userDefault,
     });
@@ -29,30 +30,38 @@ export class UsersService {
     return await newUser.save();
   }
 
-  async findOne(username: string) {
-    const user = await this.userModel.findOne({ username });
+  async updateUserGamesCount(username: string, gameType: string) {
+    const result = await this.userModel.updateOne(
+      { id: username.toLowerCase() },
+      { $inc: { [`perfs.${gameType}.games`]: 1 } },
+    );
+    return result;
+  }
+
+  async findOne(id: string) {
+    const user = await this.userModel.findOne({ id });
     if (!user) {
-      throw new NotFoundException(`User with username ${username} not found`);
+      throw new NotFoundException(`User with username ${id} not found`);
     }
     return user;
   }
 
-  async update(username: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const updatedUser = await this.userModel.findOneAndUpdate(
-      { username },
+      { id },
       { $set: updateUserDto },
       { new: true },
     );
     if (!updatedUser) {
-      throw new NotFoundException(`User with username ${username} not found`);
+      throw new NotFoundException(`User with username ${id} not found`);
     }
     return updatedUser;
   }
 
-  async remove(username: string) {
-    const result = await this.userModel.findOneAndDelete({ username });
+  async remove(id: string) {
+    const result = await this.userModel.findOneAndDelete({ id });
     if (!result) {
-      throw new NotFoundException(`User with username ${username} not found`);
+      throw new NotFoundException(`User with username ${id} not found`);
     }
     return result;
   }

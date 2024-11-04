@@ -5,11 +5,8 @@ import { UsersController } from './controllers/users.controller';
 import { UsersService } from './services/users.service';
 import { User, UserSchema } from './entities/user.entity';
 
-import { GamesModule } from './../games/games.module';
-
 @Module({
   imports: [
-    GamesModule,
     MongooseModule.forFeature([
       {
         name: User.name,
@@ -19,5 +16,6 @@ import { GamesModule } from './../games/games.module';
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
